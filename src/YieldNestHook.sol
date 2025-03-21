@@ -176,22 +176,4 @@ contract YieldNestHook is BaseHook, Ownable {
         require(liquidityWhitelist[sender], "Provider not whitelisted");
         return BaseHook.beforeAddLiquidity.selector;
     }
-
-    /**
-     * @notice Called before liquidity is removed.
-     * @dev No special logic; returns default values.
-     */
-    function _beforeRemoveLiquidity(
-        address,
-        PoolKey calldata,
-        IPoolManager.ModifyLiquidityParams calldata, // remove liquidity params (unused)
-        bytes calldata /* hookData */
-    )
-        internal
-        pure
-        override
-        returns (bytes4)
-    {
-        return BaseHook.beforeRemoveLiquidity.selector;
-    }
 }
