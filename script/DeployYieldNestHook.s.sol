@@ -29,7 +29,7 @@ contract DeployYieldNestHook is Script {
         );
 
         // Mine a salt to get a suitable deployment address.
-        bytes memory constructorArgs = abi.encode(poolManager, feeCollector, commission);
+        bytes memory constructorArgs = abi.encode(poolManagerAddress, feeCollector, commission);
         (address predictedHookAddress, bytes32 salt) = HookMiner.find(
             CREATE2_DEPLOYER,
             flags,
@@ -41,27 +41,13 @@ contract DeployYieldNestHook is Script {
         console.logBytes32(salt);
 
         // Deploy the hook using CREATE2
-        bytes memory bytecode = abi.encodePacked(type(YieldNestHook).creationCode, constructorArgs);
+        // Start broadcasting transactions to the network.
         vm.startBroadcast(deployerPrivateKey);
-        address deployedHook;
-        assembly {
-            deployedHook := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
-        }
-        vm.stopBroadcast();
 
-        // verify proper create2 usage
-        console.log("YieldNestHook deployed at:", deployedHook);
-        require(deployedHook == predictedHookAddress, "DeployScript: hook address mismatch");
+        // Deploy the YieldNestHook contract.
+        YieldNestHook yieldNestHook = new YieldNestHook{salt: salt}(poolManager, feeCollector, commission);
 
-        // // Start broadcasting transactions to the network.
-        // vm.startBroadcast(deployerPrivateKey);
-
-        // // Deploy the YieldNestHook contract.
-        // YieldNestHook yieldNestHook = new YieldNestHook{salt: salt}(poolManager, feeCollector, commission);
-
-        // // Stop broadcasting transactions.
-        // vm.stopBroadcast();
-
-        // console.log("YieldNestHook deployed at:", address(yieldNestHook));
+        // Stop broadcasting transactions.
+        require(address(yieldNestHook) == predictedHookAddress, "YieldNestHook: hook address mismatch");
     }
 }
