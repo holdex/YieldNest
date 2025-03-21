@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 // Import dependencies from v4-core and v4-periphery
-import {BaseHook} from "@uniswap-hooks/src/base/BaseHook.sol";
+import {BaseHook} from "lib/uniswap-hooks/src/base/BaseHook.sol";
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -104,13 +104,13 @@ contract YieldNestHook is BaseHook, Ownable {
      *  - `amountSpecified`: the input amount
      *  - `zeroForOne`: a boolean indicating swap direction (true if token0 for token1)
      */
-    function _beforeSwap(
+    function beforeSwap(
         address, // sender (unused here)
         PoolKey calldata key,
         IPoolManager.SwapParams calldata params,
         bytes calldata /* hookData */
     )
-        internal
+        external
         override
         returns (bytes4, BeforeSwapDelta, uint24) {
 
@@ -135,12 +135,12 @@ contract YieldNestHook is BaseHook, Ownable {
         return (BaseHook.beforeSwap.selector, commissionDelta, 0);
     }
 
-    function _beforeAddLiquidity(
+    function beforeAddLiquidity(
         address sender,
         PoolKey calldata,
         IPoolManager.ModifyLiquidityParams calldata,
         bytes calldata
-    ) internal view override returns (bytes4) {
+    ) external view override returns (bytes4) {
         require(liquidityWhitelist[sender], "Provider not whitelisted");
         return BaseHook.beforeAddLiquidity.selector;
     }
