@@ -11,6 +11,8 @@ ffi = true
 
 [rpc_endpoints]
 arbitrum = "https://arb1.arbitrum.io/rpc"
+sepolia = "https://eth-sepolia.g.alchemy.com/v2/qxR1LNdvhklKx_2X8JnbnLaFzqinnLrl"
 
 [etherscan]
 arbitrum = { key = "${ARBISCAN_API_KEY}", chain = "42161" }
+sepolia = { key = "${ETHERSCAN_API_KEY}", chain = "11155111" }

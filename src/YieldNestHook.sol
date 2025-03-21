@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 // Import dependencies from v4-core and v4-periphery
-import {BaseHook} from "v4-periphery/src/utils/BaseHook.sol";
+import {BaseHook} from "@uniswap-hooks/src/base/BaseHook.sol";
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -82,10 +82,10 @@ contract YieldNestHook is BaseHook, Ownable {
             afterInitialize: false,
             beforeAddLiquidity: true,
             afterAddLiquidity: false,
-            beforeRemoveLiquidity: true,
+            beforeRemoveLiquidity: false,
             afterRemoveLiquidity: false,
             beforeSwap: true,
-            afterSwap: true,
+            afterSwap: false,
             beforeDonate: false,
             afterDonate: false,
             beforeSwapReturnDelta: false,
@@ -117,8 +117,7 @@ contract YieldNestHook is BaseHook, Ownable {
         // Ensure swap direction is token0 -> token1.
         if (!params.zeroForOne) {
             revert("CustomSingleDirectionHook: Only token0->token1 swaps allowed");
-        }
-        
+        }        
         // Compute the commission fee
         uint256 fee = (uint256(params.amountSpecified) * commission) / 10000;
         // Accumulate fee for this pool
@@ -136,43 +135,12 @@ contract YieldNestHook is BaseHook, Ownable {
         return (BaseHook.beforeSwap.selector, commissionDelta, 0);
     }
 
-    /**
-     * @notice Called after a swap is executed.
-     * @dev For this example, simply increments a counter.
-     */
-    function _afterSwap(
-        address, // sender (unused here)
-        PoolKey calldata,
-        IPoolManager.SwapParams calldata, // swap parameters (unused here)
-        BalanceDelta, // delta (unused)
-        bytes calldata /* hookData */
-    )
-        internal
-        pure
-        override
-        returns (bytes4, int128)
-    {
-        return (BaseHook.afterSwap.selector, 0);
-    }
-
-    // ========= Liquidity Hooks =========
-
-    /**
-     * @notice Called before liquidity is added.
-     * @dev Reverts if the liquidity provider is not whitelisted.
-     * Assumes a liquidity hook signature returning an array of two int256 adjustments.
-     */
     function _beforeAddLiquidity(
         address sender,
-        PoolKey calldata /* key */,
-        IPoolManager.ModifyLiquidityParams calldata, // liquidity params (unused in this check)
-        bytes calldata /* hookData */
-    )
-        internal
-        view
-        override
-        returns (bytes4)
-    {
+        PoolKey calldata,
+        IPoolManager.ModifyLiquidityParams calldata,
+        bytes calldata
+    ) internal view override returns (bytes4) {
         require(liquidityWhitelist[sender], "Provider not whitelisted");
         return BaseHook.beforeAddLiquidity.selector;
     }

@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import {IPoolManager, YieldNestHook } from "../src/YieldNestHook.sol";
 
 contract DeployYieldNestHook is Script {
-    function run() external {
+    function run() public {
         // Retrieve parameters from environment variables.
         // You can also set these directly if needed.
         address poolManagerAddress = vm.envAddress("POOL_MANAGER_ADDRESS");
@@ -24,10 +24,11 @@ contract DeployYieldNestHook is Script {
         // Deploy the YieldNestHook contract.
         YieldNestHook yieldNestHook = new YieldNestHook(poolManager, feeCollector, commission);
 
-        // Stop broadcasting transactions.
-        vm.stopBroadcast();
 
         // Log the deployed contract address.
         console.log("YieldNestHook deployed at:", address(yieldNestHook));
+
+        // Stop broadcasting transactions.
+        vm.stopBroadcast();
     }
 }
