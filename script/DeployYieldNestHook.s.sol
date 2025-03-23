@@ -23,13 +23,12 @@ contract DeployYieldNestHook is Script {
         IPoolManager poolManager = IPoolManager(poolManagerAddress);
 
         // Define the permissions flags needed for your hook.
-        // In this example we require BEFORE_SWAP and BEFORE_ADD_LIQUIDITY.
         uint160 flags = uint160(
             Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_ADD_LIQUIDITY_FLAG
         );
 
         // Mine a salt to get a suitable deployment address.
-        bytes memory constructorArgs = abi.encode(poolManagerAddress, feeCollector, commission);
+        bytes memory constructorArgs = abi.encode(poolManager, feeCollector, commission);
         (address predictedHookAddress, bytes32 salt) = HookMiner.find(
             CREATE2_DEPLOYER,
             flags,
@@ -43,11 +42,11 @@ contract DeployYieldNestHook is Script {
         // Deploy the hook using CREATE2
         // Start broadcasting transactions to the network.
         vm.startBroadcast(deployerPrivateKey);
-
         // Deploy the YieldNestHook contract.
-        YieldNestHook yieldNestHook = new YieldNestHook{salt: salt}(poolManager, feeCollector, commission);
+        YieldNestHook yieldNestHook = new YieldNestHook{salt:salt}(poolManager, feeCollector, commission);
 
         // Stop broadcasting transactions.
+        // console.log("Predicted hook address:", address(yieldNestHook));
         require(address(yieldNestHook) == predictedHookAddress, "YieldNestHook: hook address mismatch");
     }
 }

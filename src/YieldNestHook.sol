@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 // Import dependencies from v4-core and v4-periphery
-import {BaseHook} from "lib/uniswap-hooks/src/base/BaseHook.sol";
+import {BaseHook } from "v4-periphery/src/utils/BaseHook.sol";
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -10,7 +10,7 @@ import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 import {PoolId, PoolIdLibrary} from "v4-core/src/types/PoolId.sol";
-import {BalanceDelta} from "v4-core/src/types/BalanceDelta.sol";
+import {BalanceDelta, BalanceDeltaLibrary} from "v4-core/src/types/BalanceDelta.sol";
 
 import {SafeCast} from "v4-core/src/libraries/SafeCast.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary, toBeforeSwapDelta } from "v4-core/src/types/BeforeSwapDelta.sol";
@@ -81,17 +81,17 @@ contract YieldNestHook is BaseHook, Ownable {
             beforeInitialize: false,
             afterInitialize: false,
             beforeAddLiquidity: true,
-            afterAddLiquidity: false,
+            afterAddLiquidity: true,
             beforeRemoveLiquidity: false,
             afterRemoveLiquidity: false,
             beforeSwap: true,
-            afterSwap: false,
-            beforeDonate: false,
-            afterDonate: false,
+            afterSwap: true,
+            beforeDonate: true,
+            afterDonate: true,
             beforeSwapReturnDelta: false,
-            afterSwapReturnDelta: false,
+            afterSwapReturnDelta: true,
             afterAddLiquidityReturnDelta: false,
-            afterRemoveLiquidityReturnDelta: false
+            afterRemoveLiquidityReturnDelta: true
         });
     }
 
@@ -104,13 +104,13 @@ contract YieldNestHook is BaseHook, Ownable {
      *  - `amountSpecified`: the input amount
      *  - `zeroForOne`: a boolean indicating swap direction (true if token0 for token1)
      */
-    function beforeSwap(
+    function _beforeSwap(
         address, // sender (unused here)
         PoolKey calldata key,
         IPoolManager.SwapParams calldata params,
         bytes calldata /* hookData */
     )
-        external
+        internal
         override
         returns (bytes4, BeforeSwapDelta, uint24) {
 
@@ -126,21 +126,17 @@ contract YieldNestHook is BaseHook, Ownable {
         // Immediately transfer the fee from this contract to the feeCollector.
         // Assumes that the negative delta from the swap causes the fee to be transferred into this contract.
         key.currency0.transfer(feeCollector, fee);
-
-        // Determine which token is the input and deduct fee accordingly.
-        BeforeSwapDelta commissionDelta = BeforeSwapDeltaLibrary.ZERO_DELTA;
-        commissionDelta = toBeforeSwapDelta(-fee.toInt128(), 0);
         
-        // Returning the hook selector, the computed delta adjustment, and a flag (set to 0)
-        return (BaseHook.beforeSwap.selector, commissionDelta, 0);
+        // // Returning the hook selector, the computed delta adjustment, and a flag (set to 0)
+        return (BaseHook.beforeSwap.selector, toBeforeSwapDelta(-fee.toInt128(), 0), 0);
     }
 
-    function beforeAddLiquidity(
+    function _beforeAddLiquidity(
         address sender,
         PoolKey calldata,
         IPoolManager.ModifyLiquidityParams calldata,
         bytes calldata
-    ) external view override returns (bytes4) {
+    ) internal view override returns (bytes4) {
         require(liquidityWhitelist[sender], "Provider not whitelisted");
         return BaseHook.beforeAddLiquidity.selector;
     }
