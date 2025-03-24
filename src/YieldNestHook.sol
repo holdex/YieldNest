@@ -40,9 +40,10 @@ contract YieldNestHook is BaseHook, Ownable {
     // ========= Constructor =========
     constructor(
         IPoolManager _poolManager,
+        address _governor,
         address _feeCollector,
         uint256 _commission
-    ) BaseHook(_poolManager) Ownable(msg.sender) {
+    ) BaseHook(_poolManager) Ownable(_governor) {
         feeCollector = _feeCollector;
         commission = _commission;
     }

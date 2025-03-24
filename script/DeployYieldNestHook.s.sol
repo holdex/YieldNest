@@ -19,6 +19,8 @@ contract DeployYieldNestHook is Script {
          // Retrieve the deployer's private key.
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
 
+        address governor = vm.addr(deployerPrivateKey);
+
         // Cast the pool manager address to the IPoolManager interface.
         IPoolManager poolManager = IPoolManager(poolManagerAddress);
 
@@ -28,7 +30,7 @@ contract DeployYieldNestHook is Script {
         );
 
         // Mine a salt to get a suitable deployment address.
-        bytes memory constructorArgs = abi.encode(poolManager, feeCollector, commission);
+        bytes memory constructorArgs = abi.encode(poolManager, governor, feeCollector, commission);
         (address predictedHookAddress, bytes32 salt) = HookMiner.find(
             CREATE2_DEPLOYER,
             flags,
@@ -43,7 +45,7 @@ contract DeployYieldNestHook is Script {
         // Start broadcasting transactions to the network.
         vm.startBroadcast(deployerPrivateKey);
         // Deploy the YieldNestHook contract.
-        YieldNestHook yieldNestHook = new YieldNestHook{salt:salt}(poolManager, feeCollector, commission);
+        YieldNestHook yieldNestHook = new YieldNestHook{salt: salt}(poolManager, governor, feeCollector, commission);
 
         // Stop broadcasting transactions.
         // console.log("Predicted hook address:", address(yieldNestHook));
