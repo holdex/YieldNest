@@ -24,7 +24,7 @@ contract DeployYieldNestHook is Script {
 
         // Define the permissions flags needed for your hook.
         uint160 flags = uint160(
-            Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_ADD_LIQUIDITY_FLAG
+            Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_ADD_LIQUIDITY_FLAG | Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG
         );
 
         // Mine a salt to get a suitable deployment address.

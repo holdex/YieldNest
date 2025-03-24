@@ -2,10 +2,8 @@
 pragma solidity ^0.8.24;
 
 // Import dependencies from v4-core and v4-periphery
-import {BaseHook } from "v4-periphery/src/utils/BaseHook.sol";
-
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-
+import {BaseHook } from "v4-periphery/src/utils/BaseHook.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
@@ -81,17 +79,17 @@ contract YieldNestHook is BaseHook, Ownable {
             beforeInitialize: false,
             afterInitialize: false,
             beforeAddLiquidity: true,
-            afterAddLiquidity: true,
+            afterAddLiquidity: false,
             beforeRemoveLiquidity: false,
             afterRemoveLiquidity: false,
             beforeSwap: true,
-            afterSwap: true,
-            beforeDonate: true,
-            afterDonate: true,
-            beforeSwapReturnDelta: false,
-            afterSwapReturnDelta: true,
+            afterSwap: false,
+            beforeDonate: false,
+            afterDonate: false,
+            beforeSwapReturnDelta: true,
+            afterSwapReturnDelta: false,
             afterAddLiquidityReturnDelta: false,
-            afterRemoveLiquidityReturnDelta: true
+            afterRemoveLiquidityReturnDelta: false
         });
     }
 
@@ -114,21 +112,26 @@ contract YieldNestHook is BaseHook, Ownable {
         override
         returns (bytes4, BeforeSwapDelta, uint24) {
 
-        // Ensure swap direction is token0 -> token1.
-        if (!params.zeroForOne) {
-            revert("CustomSingleDirectionHook: Only token0->token1 swaps allowed");
-        }        
+        uint256 swapAmount = params.amountSpecified < 0
+        ? uint256(-params.amountSpecified)
+        : uint256(params.amountSpecified);
+       
         // Compute the commission fee
-        uint256 fee = (uint256(params.amountSpecified) * commission) / 10000;
+        uint256 fee = (swapAmount * commission) / 10000;
         // Accumulate fee for this pool
         feesCollected[key.toId()] += fee;
 
-        // Immediately transfer the fee from this contract to the feeCollector.
-        // Assumes that the negative delta from the swap causes the fee to be transferred into this contract.
-        key.currency0.transfer(feeCollector, fee);
-        
+        BeforeSwapDelta swapDelta;
+        if (params.zeroForOne) {
+            swapDelta =  toBeforeSwapDelta(fee.toInt128(), 0);
+            poolManager.take(key.currency0, feeCollector, fee);
+        }  else {
+            swapDelta = toBeforeSwapDelta(-fee.toInt128(), 0);
+            poolManager.take(key.currency1, feeCollector, fee);
+        }
+
         // // Returning the hook selector, the computed delta adjustment, and a flag (set to 0)
-        return (BaseHook.beforeSwap.selector, toBeforeSwapDelta(-fee.toInt128(), 0), 0);
+        return (BaseHook.beforeSwap.selector, swapDelta, 0);
     }
 
     function _beforeAddLiquidity(
