@@ -3,12 +3,12 @@ pragma solidity ^0.8.0;
 
 // import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {Hooks} from "./Hooks.sol";
-import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
-import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
-import {BalanceDelta} from "v4-core/src/types/BalanceDelta.sol";
-import {PoolKey} from "v4-core/src/types/PoolKey.sol";
-import {BeforeSwapDelta} from "v4-core/src/types/BeforeSwapDelta.sol";
-import {ImmutableState} from "v4-periphery/src/base/ImmutableState.sol";
+import {IPoolManager} from "@uniswap/v4-core/src/interfaces/IPoolManager.sol";
+import {IHooks} from "@uniswap/v4-core/src/interfaces/IHooks.sol";
+import {BalanceDelta} from "@uniswap/v4-core/src/types/BalanceDelta.sol";
+import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
+import {BeforeSwapDelta} from "@uniswap/v4-core/src/types/BeforeSwapDelta.sol";
+import {ImmutableState} from "@uniswap/v4-periphery/src/base/ImmutableState.sol";
 
 /// @title Base Hook
 /// @notice abstract contract for hook implementations

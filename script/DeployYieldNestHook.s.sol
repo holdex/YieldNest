@@ -3,11 +3,13 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Script.sol";
 import {IPoolManager, YieldNestHook } from "../src/YieldNestHook.sol";
-import {Hooks} from "v4-core/src/libraries/Hooks.sol";
-import {HookMiner} from "v4-periphery/src/utils/HookMiner.sol";
+
+import { Create2Deployer } from "../src/mock/Create2Deployer.sol";
+import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
+import {HookMiner} from "@uniswap/v4-periphery/src/utils/HookMiner.sol";
 
 contract DeployYieldNestHook is Script {
-    address constant CREATE2_DEPLOYER = address(0x4e59b44847b379578588920cA78FbF26c0B4956C);
+    address constant CREATE2_DEPLOYER = address(0x8d44F1fA24e98Fe0540D1A6cE0e439Fd7e6583dA);
 
     function run() public {
         // Retrieve parameters from environment variables.
@@ -45,10 +47,19 @@ contract DeployYieldNestHook is Script {
         // Start broadcasting transactions to the network.
         vm.startBroadcast(deployerPrivateKey);
         // Deploy the YieldNestHook contract.
-        YieldNestHook yieldNestHook = new YieldNestHook{salt: salt}(poolManager, governor, feeCollector, commission);
 
+        Create2Deployer create2Deployer = Create2Deployer(CREATE2_DEPLOYER);
+
+        Create2Deployer.FunctionCall[] memory calls = new Create2Deployer.FunctionCall[](0);
+
+        address yieldNestHook = create2Deployer.deploy(
+            abi.encodePacked(type(YieldNestHook).creationCode, constructorArgs),
+            uint256(salt), 
+            calls
+        );
         // Stop broadcasting transactions.
+        vm.stopBroadcast();
         // console.log("Predicted hook address:", address(yieldNestHook));
-        require(address(yieldNestHook) == predictedHookAddress, "YieldNestHook: hook address mismatch");
+        require(yieldNestHook == predictedHookAddress, "YieldNestHook: hook address mismatch");
     }
 }

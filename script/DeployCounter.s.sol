@@ -2,11 +2,11 @@
 pragma solidity ^0.8.19;
 
 import "forge-std/Script.sol";
-import {Hooks} from "v4-core/src/libraries/Hooks.sol";
-import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
+import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
+import {IPoolManager} from "@uniswap/v4-core/src/interfaces/IPoolManager.sol";
 
 import {Counter} from "../src/Counter.sol";
-import {HookMiner} from "v4-periphery/src/utils/HookMiner.sol";
+import {HookMiner} from "@uniswap/v4-periphery/src/utils/HookMiner.sol";
 
 /// @notice Mines the address and deploys the Counter.sol Hook contract
 contract CounterScript is Script {

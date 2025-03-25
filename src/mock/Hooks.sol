@@ -3,15 +3,15 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Script.sol";
 
-import {PoolKey} from "v4-core/src/types/PoolKey.sol";
-import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
-import {SafeCast} from "v4-core/src/libraries//SafeCast.sol";
-import {LPFeeLibrary} from "v4-core/src/libraries//LPFeeLibrary.sol";
-import {BalanceDelta, toBalanceDelta, BalanceDeltaLibrary} from "v4-core/src/types/BalanceDelta.sol";
-import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "v4-core/src/types/BeforeSwapDelta.sol";
-import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
-import {ParseBytes} from "v4-core/src/libraries//ParseBytes.sol";
-import {CustomRevert} from "v4-core/src/libraries//CustomRevert.sol";
+import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
+import {IHooks} from "@uniswap/v4-core/src/interfaces/IHooks.sol";
+import {SafeCast} from "@uniswap/v4-core/src/libraries/SafeCast.sol";
+import {LPFeeLibrary} from "@uniswap/v4-core/src/libraries/LPFeeLibrary.sol";
+import {BalanceDelta, toBalanceDelta, BalanceDeltaLibrary} from "@uniswap/v4-core/src/types/BalanceDelta.sol";
+import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "@uniswap/v4-core/src/types/BeforeSwapDelta.sol";
+import {IPoolManager} from "@uniswap/v4-core/src/interfaces/IPoolManager.sol";
+import {ParseBytes} from "@uniswap/v4-core/src/libraries/ParseBytes.sol";
+import {CustomRevert} from "@uniswap/v4-core/src/libraries/CustomRevert.sol";
 
 /// @notice V4 decides whether to invoke specific hooks by inspecting the least significant bits
 /// of the address that the hooks contract is deployed to.
