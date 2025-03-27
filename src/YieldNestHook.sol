@@ -30,9 +30,6 @@ contract YieldNestHook is BaseHook, Ownable {
     // Commission expressed in basis points (e.g., 50 means 0.5%)
     uint256 public commission;
 
-    // Mapping to whitelist addresses for liquidity provision
-    mapping(address => bool) public liquidityWhitelist;
-
     // ========= Fee & Counter Tracking =========
     // Records fees collected per pool (by pool id)
     mapping(PoolId => uint256) public feesCollected;
@@ -58,16 +55,6 @@ contract YieldNestHook is BaseHook, Ownable {
     /// @notice Update the fee collector address
     function setFeeCollector(address _feeCollector) external onlyOwner {
         feeCollector = _feeCollector;
-    }
-
-    /// @notice Add an address to the liquidity provider whitelist
-    function addToWhitelist(address _provider) external onlyOwner {
-        liquidityWhitelist[_provider] = true;
-    }
-
-    /// @notice Remove an address from the liquidity provider whitelist
-    function removeFromWhitelist(address _provider) external onlyOwner {
-        liquidityWhitelist[_provider] = false;
     }
 
     // ========= Hook Permission Declaration =========
@@ -136,12 +123,12 @@ contract YieldNestHook is BaseHook, Ownable {
     }
 
     function _beforeAddLiquidity(
-        address sender,
+        address,
         PoolKey calldata,
-        IPoolManager.ModifyLiquidityParams calldata,
+        IPoolManager.ModifyLiquidityParams calldata params,
         bytes calldata
-    ) internal view override returns (bytes4) {
-        require(liquidityWhitelist[sender], "Provider not whitelisted");
+    ) internal pure override returns (bytes4) {
+        require(params.tickLower == type(int24).min && params.tickUpper == type(int24).max, "Liquidity must be provided within the full range");
         return BaseHook.beforeAddLiquidity.selector;
     }
 }

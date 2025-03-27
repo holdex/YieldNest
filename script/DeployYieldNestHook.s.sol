@@ -9,7 +9,7 @@ import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
 import {HookMiner} from "@uniswap/v4-periphery/src/utils/HookMiner.sol";
 
 contract DeployYieldNestHook is Script {
-    address constant CREATE2_DEPLOYER = address(0x8d44F1fA24e98Fe0540D1A6cE0e439Fd7e6583dA);
+    address constant CREATE2_DEPLOYER = address(0xbD65EA8Bef3128474a0D445B7faeF424934C8C75);
 
     function run() public {
         // Retrieve parameters from environment variables.
