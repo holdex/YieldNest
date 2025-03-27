@@ -125,10 +125,9 @@ contract YieldNestHook is BaseHook, Ownable {
     function _beforeAddLiquidity(
         address,
         PoolKey calldata,
-        IPoolManager.ModifyLiquidityParams calldata params,
+        IPoolManager.ModifyLiquidityParams calldata,
         bytes calldata
     ) internal pure override returns (bytes4) {
-        require(params.tickLower == type(int24).min && params.tickUpper == type(int24).max, "Liquidity must be provided within the full range");
         return BaseHook.beforeAddLiquidity.selector;
     }
 }
